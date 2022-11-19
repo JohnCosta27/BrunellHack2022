@@ -30,7 +30,7 @@ const Home = () => {
     <div className="flex justify-center w-full p-16">
       <div className="w-3/4 flex flex-col gap-8">
         <h1 className="text-5xl text-white">Near Me</h1>
-          <div className="w-full grid grid-cols-3 gap-4">
+          <div className="w-full grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {messages.map((m) => (
               <>
                 {m.messages.map((message) => <div className="bg-white p-4 text-2xl">{message.payload}</div>)}
