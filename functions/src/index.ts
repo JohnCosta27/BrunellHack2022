@@ -1,6 +1,6 @@
 import * as functions from "firebase-functions";
 import * as admin from "firebase-admin";
-import * as geofire from 'geofire-common';
+import * as geofire from "geofire-common";
 
 admin.initializeApp();
 const db = admin.firestore();
@@ -14,8 +14,18 @@ export const helloWorld = functions.https.onRequest((request, response) => {
 
 export const createDrop = functions.https.onRequest(async (request, response) => {
   const body = request.body;
-  if (!body["lon"] || !body["lat"]) {
-    response.send("bruh, send me long and lat");
+  if (!body.lon) {
+    response.status(400).send("Error: parameter lon requried");
+    return;
+  }
+
+  if (!body.lat) {
+    response.status(400).send("Error: parameter lat required");
+    return;
+  }
+
+  if (!body.message) {
+    response.status(400).send("Error: parameter message required");
     return;
   }
 
@@ -23,17 +33,22 @@ export const createDrop = functions.https.onRequest(async (request, response) =>
   const current = db.collection("deadDrops").doc(hash);
   const doc = await current.get();
 
+  const message = {
+    payload: body.message,
+    created: new Date(),
+  };
+
   if (!doc.exists) {
     current.set({
-      lat: body["lat"],
-      lon: body["lon"],
-      messages: ["Hello World"],
+      lat: body.lat,
+      lon: body.lon,
+      messages: [message],
     });
   } else {
     current.update({
-      messages: [...doc.data()!.messages, "Helloooo!"],
+      messages: [...doc.data()!.messages, message],
     });
   }
 
-  response.send('idk man');
+  response.send();
 });
