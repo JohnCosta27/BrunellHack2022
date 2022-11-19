@@ -57,10 +57,10 @@ export const createDrop = functions.https.onRequest(async (request, response) =>
     id: uuid(),
     payload: body.message,
     created: new Date(),
-    upvotes: 0,
-    downvotes: 0,
+    upVotes: 0,
+    downVotes: 0,
   };
-  db.collection("messages").add(message);
+  db.collection("messages").doc(message.id).set(message);
 
   if (!doc.exists) {
     current.set({
@@ -76,4 +76,54 @@ export const createDrop = functions.https.onRequest(async (request, response) =>
   }
 
   response.send(message);
+});
+
+export const upvoteMessage = functions.https.onRequest(async (req, res) => {
+  const body = req.body;
+  const errors = requiredParams(["messageId"], body);
+  if (errors.length > 0) {
+    res.status(400).send(errors);
+    return;
+  }
+
+  const current = db.collection("messages").doc(body.messageId);
+  const doc = await current.get();
+
+  if (!doc.exists) {
+    res.status(404).send("Error: Message not found");
+    return;
+  }
+  const message = doc.data();
+  let upVotes = 0;
+  if (message && message.upVotes) {
+    upVotes = message.upVotes;
+  }
+
+  current.update({ upVotes: upVotes + 1 });
+  res.send((await current.get()).data());
+});
+
+export const downvoteMessage = functions.https.onRequest(async (req, res) => {
+  const body = req.body;
+  const errors = requiredParams(["messageId"], body);
+  if (errors.length > 0) {
+    res.status(400).send(errors);
+    return;
+  }
+
+  const current = db.collection("messages").doc(body.messageId);
+  const doc = await current.get();
+
+  if (!doc.exists) {
+    res.status(404).send("Error: Message not found");
+    return;
+  }
+  const message = doc.data();
+  let downVotes = 0;
+  if (message && message.downVotes) {
+    downVotes = message.downVotes;
+  }
+
+  current.update({ downVotes: downVotes + 1 });
+  res.send((await current.get()).data());
 });
