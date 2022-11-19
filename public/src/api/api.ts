@@ -1,7 +1,7 @@
 import axios from "axios";
 
 type DevModes = "dev" | "prod";
-const mode: DevModes = "dev";
+const mode: DevModes = "prod";
 
 const prefix =
   mode === "prod"
