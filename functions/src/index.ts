@@ -9,10 +9,25 @@ const db = admin.firestore();
 // // https://firebase.google.com/docs/functions/typescript
 export const helloWorld = functions.https.onRequest((request, response) => {
   functions.logger.info("Hello logs!", { structuredData: true });
+  response.set("Access-Control-Allow-Origin", "*")
+  response.set("Access-Control-Allow-Headers", "*")
+
+  if (request.method === "OPTIONS") {
+    response.status(200).send();
+    return;
+  }
   response.send("Hello from Firebase!");
 });
 
 export const messages = functions.https.onRequest(async (req, res) => {
+  res.set("Access-Control-Allow-Origin", "*")
+  res.set("Access-Control-Allow-Headers", "*")
+
+  if (req.method === "OPTIONS") {
+    res.status(200).send();
+    return;
+  }
+
   const body = req.body;
   if (!body["lat"] || !body["lon"] || !body["radius"]) {
     res.status(400).send("send lat and lon");
@@ -45,6 +60,14 @@ type create = {
 };
 
 export const createDrop = functions.https.onRequest(async (request, response) => {
+  response.set("Access-Control-Allow-Origin", "*")
+  response.set("Access-Control-Allow-Headers", "*")
+
+  if (request.method === "OPTIONS") {
+    response.status(200).send();
+    return;
+  }
+
   const body: create = request.body;
   if (!body.lon) {
     response.status(400).send("Error: parameter lon required");
