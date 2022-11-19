@@ -18,22 +18,20 @@ export const getMessages = functions.https.onRequest(async (req, res) => {
 
   const radius = parseInt(body["radius"]);
   const bounds = geofire.geohashQueryBounds([body["lon"], body["lat"]], radius);
-  console.log(bounds);
 
   const promises = bounds.map((b) =>
     db.collection("deadDrops").orderBy("hash").startAt(b[0]).endAt(b[1]).get()
   );
 
-  const response: any[] = [];
   Promise.all(promises).then((snapshots) => {
+  const response: any[] = [];
     for (const snap of snapshots) {
       for (const doc of snap.docs) {
         response.push(doc.data());
       }
     }
-  });
-
-  res.status(200).send(response);
+    return response;
+  }).then(d => res.status(200).send(d));
 });
 
 export const createDrop = functions.https.onRequest(async (request, response) => {
