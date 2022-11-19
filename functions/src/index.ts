@@ -23,20 +23,27 @@ export const getMessages = functions.https.onRequest(async (req, res) => {
     db.collection("deadDrops").orderBy("hash").startAt(b[0]).endAt(b[1]).get()
   );
 
-  Promise.all(promises).then((snapshots) => {
-  const response: any[] = [];
-    for (const snap of snapshots) {
-      for (const doc of snap.docs) {
-        response.push(doc.data());
-      }
+  const snapshots = await Promise.all(promises);
+  const responses: any[] = [];
+  for (const snap of snapshots) {
+    for (const doc of snap.docs) {
+      responses.push(doc.data());
     }
-    return response;
-  }).then(d => res.status(200).send(d));
+  }
+  for (let response of responses) {
+    const snaps = await db.collection("messages").where("id", "in", response.messages).get();
+    const messages: any = [];
+    for (const snap of snaps.docs) {
+      messages.push(snap.data());
+    }
+    response.messages = messages;
+  }
+  res.status(200).send(responses);
 });
 
 export const createDrop = functions.https.onRequest(async (request, response) => {
   const body = request.body;
-  const errors = requiredParams(["lon", "lat", "radius"], body);
+  const errors = requiredParams(["lon", "lat", "message"], body);
   if (errors.length > 0) {
     response.status(400).send(errors);
     return;
@@ -53,17 +60,18 @@ export const createDrop = functions.https.onRequest(async (request, response) =>
     upvotes: 0,
     downvotes: 0,
   };
+  db.collection("messages").add(message);
 
   if (!doc.exists) {
     current.set({
       hash: hash,
       lat: body.lat,
       lon: body.lon,
-      messages: [message],
+      messages: [message.id],
     });
   } else {
     current.update({
-      messages: [...doc.data()!.messages, message],
+      messages: [...doc.data()!.messages, message.id],
     });
   }
 
