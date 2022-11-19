@@ -29,15 +29,16 @@ export const messages = functions.https.onRequest(async (req, res) => {
     .endAt(b[1]).get()
   );
 
+  const response: any[] = [];
   Promise.all(promises).then(snapshots => {
     for (const snap of snapshots) {
       for (const doc of snap.docs) {
-        console.log(doc.data());
+        response.push(doc.data());
       }
     }
   });
 
-  res.status(200).send("Hello world!");
+  res.status(200).send(response);
 });
 
 export const createDrop = functions.https.onRequest(async (request, response) => {
