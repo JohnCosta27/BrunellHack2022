@@ -40,31 +40,43 @@ export const messages = functions.https.onRequest(async (req, res) => {
   res.status(200).send("Hello world!");
 });
 
-export const createDrop = functions.https.onRequest(
-  async (request, response) => {
-    const body = request.body;
-    if (!body["lon"] || !body["lat"]) {
-      response.send("bruh, send me long and lat");
-      return;
-    }
-
-    const hash = geofire.geohashForLocation([body["lon"], body["lat"]]);
-    const current = db.collection("deadDrops").doc(hash);
-    const doc = await current.get();
-
-    if (!doc.exists) {
-      current.set({
-        hash,
-        lat: body["lat"],
-        lon: body["lon"],
-        messages: ["Hello World"],
-      });
-    } else {
-      current.update({
-        messages: [...doc.data()!.messages, "Helloooo!"],
-      });
-    }
-
-    response.send("idk man");
+export const createDrop = functions.https.onRequest(async (request, response) => {
+  const body = request.body;
+  if (!body.lon) {
+    response.status(400).send("Error: parameter lon requried");
+    return;
   }
-);
+
+  if (!body.lat) {
+    response.status(400).send("Error: parameter lat required");
+    return;
+  }
+
+  if (!body.message) {
+    response.status(400).send("Error: parameter message required");
+    return;
+  }
+
+  const hash = geofire.geohashForLocation([body["lon"], body["lat"]]);
+  const current = db.collection("deadDrops").doc(hash);
+  const doc = await current.get();
+
+  const message = {
+    payload: body.message,
+    created: new Date(),
+  };
+
+  if (!doc.exists) {
+    current.set({
+      lat: body.lat,
+      lon: body.lon,
+      messages: [message],
+    });
+  } else {
+    current.update({
+      messages: [...doc.data()!.messages, message],
+    });
+  }
+
+  response.send();
+});
