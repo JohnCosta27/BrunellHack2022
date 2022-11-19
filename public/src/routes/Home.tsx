@@ -1,45 +1,43 @@
 import { getMessages } from "@/api/api";
 import { useEffect, useState } from "react";
+import Send from "./Send";
+
+export const RADIUS = 20;
 
 const Home = () => {
   const [messages, setMessages] = useState([]);
-  const [loaded, setLoaded] = useState(false);
-  const [location, setLocation] = useState({ lat: 0, lon: 0 });
+  const [location, setLocation] = useState({ lat: 0.1, lon: 0.1 });
+  const [locationLoaded, setLocationLoaded] = useState(0);
 
-  navigator.geolocation.watchPosition((pos) =>
+  navigator.geolocation.watchPosition((pos) => {
     setLocation({
       lat: pos.coords.latitude,
       lon: pos.coords.longitude,
-    })
-  );
+    });
+    console.log("Updating Location");
+    setLocationLoaded(locationLoaded + 1);
+  });
 
   useEffect(() => {
-    if (!loaded) {
-      getMessages().then((r) => {
+    if (locationLoaded > 0) {
+      getMessages(location.lat, location.lon, RADIUS).then((r) => {
         setMessages(r.data);
-        setLoaded(true);
       });
     }
-  }, []);
+  }, [locationLoaded]);
 
   return (
     <div className="flex justify-center w-full p-16">
-      <div className="w-3/4 flex flex-col">
-        <h1 className="text-5xl text-white">Latitude: {location.lat}</h1>
-        <h1 className="text-5xl text-white">longitude: {location.lon}</h1>
-        <h1 className="text-5xl text-white">Locations</h1>
-        <div className="w-full flex flex-col gap-4">
-          {messages.map((m) => (
-            <div className="w-full bg-blue-800 rounded text-white text-2xl p-4 flex flex-col items-center gap-4">
-              {m.hash}
-              <div className="w-1/2 flex flex-col">
-                {m.messages.map((message) => (
-                  <p>{message.payload}</p>
-                ))}
-              </div>
-            </div>
-          ))}
-        </div>
+      <div className="w-3/4 flex flex-col gap-8">
+        <h1 className="text-5xl text-white">Near Me</h1>
+          <div className="w-full grid grid-cols-3 gap-4">
+            {messages.map((m) => (
+              <>
+                {m.messages.map((message) => <div className="bg-white p-4 text-2xl">{message.payload}</div>)}
+              </>
+            ))}
+          </div>
+        <Send lat={location.lat} lon={location.lon} messages={messages} setMessages={setMessages} />
       </div>
     </div>
   );

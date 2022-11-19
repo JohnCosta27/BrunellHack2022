@@ -8,11 +8,11 @@ const prefix =
     ? "https://us-central1-brunellhack.cloudfunctions.net/"
     : "http://localhost:5001/brunellhack/us-central1/";
 
-export const getMessages = () => {
+export const getMessages = (lat: number, lon: number, radius: number) => {
   return axios.post(`${prefix}messages`, {
-    "lon": 0.1,
-    "lat": 0.1,
-    "radius": 1000000
+    "lon": lon,
+    "lat": lat,
+    "radius": radius,
   });
 };
 
