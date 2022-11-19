@@ -17,7 +17,9 @@
     "@emotion/styled": "^11.9.3",
     "clsx": "^1.1.1",
     "react": "^18.0.0",
+    "react-burger-menu": "^3.0.8",
     "react-dom": "^18.0.0",
+    "react-icons": "^4.6.0",
     "react-router": "^6.4.3",
     "react-router-dom": "^6.4.3",
     "tailwindcss-animatecss": "^1.0.7"
@@ -25,6 +27,7 @@
   "devDependencies": {
     "@types/node": "^17.0.35",
     "@types/react": "^18.0.0",
+    "@types/react-burger-menu": "^2.8.3",
     "@types/react-dom": "^18.0.0",
     "@typescript-eslint/eslint-plugin": "^5.26.0",
     "@typescript-eslint/parser": "^5.26.0",
