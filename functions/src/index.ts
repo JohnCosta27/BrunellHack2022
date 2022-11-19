@@ -21,7 +21,6 @@ export const messages = functions.https.onRequest(async (req, res) => {
 
   const radius = parseInt(body["radius"]);
   const bounds = geofire.geohashQueryBounds([body["lon"], body["lat"]], radius);
-  console.log(bounds);
 
   const promises = bounds.map((b) =>
     db.collection("deadDrops").orderBy("hash").startAt(b[0]).endAt(b[1]).get()
