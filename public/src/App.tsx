@@ -6,6 +6,8 @@ import { Route, Router, Routes } from 'react-router';
 import Location from '@/routes/Location';
 import Layout from '@/format/Layout';
 import Home from './routes/Home';
+import Send from './routes/Send';
+import View from './routes/View';
 import Map from './routes/map';
 
 // colors: https://coolors.co/ef3e36-17bebb-2e282a-edb88b-fad8d6
@@ -15,6 +17,7 @@ const App = () => (
     <Route path="/" element={<Home />} />
     <Route path="/" element={<Map />}>
       <Route index element={<Home />} />
+      <Route path="view" element={<View />} />
       <Route path="loc" element={<Location />} />
       <Route path="map" element={<Map />} />
     </Route>

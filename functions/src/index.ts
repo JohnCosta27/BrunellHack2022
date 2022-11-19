@@ -7,7 +7,29 @@ import { requiredParams } from "./utils";
 admin.initializeApp();
 const db = admin.firestore();
 
-export const getMessages = functions.https.onRequest(async (req, res) => {
+// // Start writing Firebase Functions
+// // https://firebase.google.com/docs/functions/typescript
+export const helloWorld = functions.https.onRequest((request, response) => {
+  functions.logger.info("Hello logs!", { structuredData: true });
+  response.set("Access-Control-Allow-Origin", "*")
+  response.set("Access-Control-Allow-Headers", "*")
+
+  if (request.method === "OPTIONS") {
+    response.status(200).send();
+    return;
+  }
+  response.send("Hello from Firebase!");
+});
+
+export const messages = functions.https.onRequest(async (req, res) => {
+  res.set("Access-Control-Allow-Origin", "*")
+  res.set("Access-Control-Allow-Headers", "*")
+
+  if (req.method === "OPTIONS") {
+    res.status(200).send();
+    return;
+  }
+
   const body = req.body;
   const errors = requiredParams(["lon", "lat", "radius"], body);
   console.log(errors);
@@ -42,10 +64,17 @@ export const getMessages = functions.https.onRequest(async (req, res) => {
 });
 
 export const createDrop = functions.https.onRequest(async (request, response) => {
-  const body = request.body;
-  const errors = requiredParams(["lon", "lat", "message"], body);
-  if (errors.length > 0) {
-    response.status(400).send(errors);
+  response.set("Access-Control-Allow-Origin", "*")
+  response.set("Access-Control-Allow-Headers", "*")
+
+  if (request.method === "OPTIONS") {
+    response.status(200).send();
+    return;
+  }
+
+  const body: create = request.body;
+  if (!body.lon) {
+    response.status(400).send("Error: parameter lon required");
     return;
   }
 
