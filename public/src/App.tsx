@@ -3,6 +3,7 @@ import { XyzTransitionGroup } from '@animxyz/react';
 
 import '@/index.css';
 import { Route, Router, Routes } from 'react-router';
+import Location from '@/routes/Location';
 import Layout from '@/format/Layout';
 import Home from './routes/Home';
 import Send from './routes/Send';
@@ -16,6 +17,7 @@ const App = () => (
       <Route index element={<Home />} />
       <Route path="send" element={<Send />} />
       <Route path="view" element={<View />} />
+      <Route path="loc" element={<Location />} />
     </Route>
   </Routes>
 
