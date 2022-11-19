@@ -6,7 +6,7 @@ const Send: FC<{
   lat: number;
   lon: number;
   messages: string[];
-  setMessages: (a: string[]) => void;
+  setMessages: (a: any[]) => void;
 }> = ({ lat, lon, messages, setMessages }) => {
   const [message, setMessage] = useState("");
 
