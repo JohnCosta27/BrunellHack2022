@@ -24,13 +24,11 @@ export const messages = functions.https.onRequest(async (req, res) => {
   console.log(bounds);
 
   const promises = bounds.map((b) =>
-    db.collection("deadDrops").orderBy('hash')
-    .startAt(b[0])
-    .endAt(b[1]).get()
+    db.collection("deadDrops").orderBy("hash").startAt(b[0]).endAt(b[1]).get()
   );
 
   const response: any[] = [];
-  Promise.all(promises).then(snapshots => {
+  Promise.all(promises).then((snapshots) => {
     for (const snap of snapshots) {
       for (const doc of snap.docs) {
         response.push(doc.data());
@@ -41,10 +39,17 @@ export const messages = functions.https.onRequest(async (req, res) => {
   res.status(200).send(response);
 });
 
+type create = {
+  lon: number;
+  lat: number;
+  hash: string;
+  message: string;
+};
+
 export const createDrop = functions.https.onRequest(async (request, response) => {
-  const body = request.body;
+  const body: create = request.body;
   if (!body.lon) {
-    response.status(400).send("Error: parameter lon requried");
+    response.status(400).send("Error: parameter lon required");
     return;
   }
 
@@ -69,6 +74,7 @@ export const createDrop = functions.https.onRequest(async (request, response) =>
 
   if (!doc.exists) {
     current.set({
+      hash: hash,
       lat: body.lat,
       lon: body.lon,
       messages: [message],
