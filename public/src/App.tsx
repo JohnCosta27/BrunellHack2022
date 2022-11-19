@@ -5,6 +5,7 @@ import '@/index.css';
 import { Route, Router, Routes } from 'react-router';
 import Layout from '@/format/Layout';
 import Home from './routes/Home';
+import Send from './routes/Send'
 
 // colors: https://coolors.co/ef3e36-17bebb-2e282a-edb88b-fad8d6
 
@@ -12,6 +13,7 @@ const App = () => (
   <Routes>
     <Route path="/" element={<Layout />}>
       <Route index element={<Home />} />
+      <Route path="send" element={<Send />} />
     </Route>
   </Routes>
 
