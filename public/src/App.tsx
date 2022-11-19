@@ -14,8 +14,7 @@ import Map from './routes/map';
 
 const App = () => (
   <Routes>
-    <Route path="/" element={<Home />} />
-    <Route path="/" element={<Map />}>
+    <Route path="/" element={<Layout />}>
       <Route index element={<Home />} />
       <Route path="view" element={<View />} />
       <Route path="loc" element={<Location />} />
