@@ -1,89 +1,129 @@
 import * as functions from "firebase-functions";
 import * as admin from "firebase-admin";
 import * as geofire from "geofire-common";
+import { v4 as uuid } from "uuid";
+import { requiredParams } from "./utils";
 
 admin.initializeApp();
 const db = admin.firestore();
 
-// // Start writing Firebase Functions
-// // https://firebase.google.com/docs/functions/typescript
-export const helloWorld = functions.https.onRequest((request, response) => {
-  functions.logger.info("Hello logs!", { structuredData: true });
-  response.send("Hello from Firebase!");
-});
-
-export const messages = functions.https.onRequest(async (req, res) => {
+export const getMessages = functions.https.onRequest(async (req, res) => {
   const body = req.body;
-  if (!body["lat"] || !body["lon"] || !body["radius"]) {
-    res.status(400).send("send lat and lon");
+  const errors = requiredParams(["lon", "lat", "radius"], body);
+  console.log(errors);
+  if (errors.length > 0) {
+    res.status(400).send(errors);
     return;
   }
 
   const radius = parseInt(body["radius"]);
   const bounds = geofire.geohashQueryBounds([body["lon"], body["lat"]], radius);
-  console.log(bounds);
 
   const promises = bounds.map((b) =>
     db.collection("deadDrops").orderBy("hash").startAt(b[0]).endAt(b[1]).get()
   );
 
-  const response: any[] = [];
-  Promise.all(promises).then((snapshots) => {
-    for (const snap of snapshots) {
-      for (const doc of snap.docs) {
-        response.push(doc.data());
-      }
+  const snapshots = await Promise.all(promises);
+  const responses: any[] = [];
+  for (const snap of snapshots) {
+    for (const doc of snap.docs) {
+      responses.push(doc.data());
     }
-  });
-
-  res.status(200).send(response);
+  }
+  for (let response of responses) {
+    const snaps = await db.collection("messages").where("id", "in", response.messages).get();
+    const messages: any = [];
+    for (const snap of snaps.docs) {
+      messages.push(snap.data());
+    }
+    response.messages = messages;
+  }
+  res.status(200).send(responses);
 });
 
-type create = {
-  lon: number;
-  lat: number;
-  hash: string;
-  message: string;
-};
-
 export const createDrop = functions.https.onRequest(async (request, response) => {
-  const body: create = request.body;
-  if (!body.lon) {
-    response.status(400).send("Error: parameter lon required");
+  const body = request.body;
+  const errors = requiredParams(["lon", "lat", "message"], body);
+  if (errors.length > 0) {
+    response.status(400).send(errors);
     return;
   }
 
-  if (!body.lat) {
-    response.status(400).send("Error: parameter lat required");
-    return;
-  }
-
-  if (!body.message) {
-    response.status(400).send("Error: parameter message required");
-    return;
-  }
-
-  const hash = geofire.geohashForLocation([body["lon"], body["lat"]]);
+  const hash = geofire.geohashForLocation([body.lon, body.lat]);
   const current = db.collection("deadDrops").doc(hash);
   const doc = await current.get();
 
   const message = {
+    id: uuid(),
     payload: body.message,
     created: new Date(),
+    upVotes: 0,
+    downVotes: 0,
   };
+  db.collection("messages").doc(message.id).set(message);
 
   if (!doc.exists) {
     current.set({
       hash: hash,
       lat: body.lat,
       lon: body.lon,
-      messages: [message],
+      messages: [message.id],
     });
   } else {
     current.update({
-      messages: [...doc.data()!.messages, message],
+      messages: [...doc.data()!.messages, message.id],
     });
   }
 
-  response.send();
+  response.send(message);
+});
+
+export const upvoteMessage = functions.https.onRequest(async (req, res) => {
+  const body = req.body;
+  const errors = requiredParams(["messageId"], body);
+  if (errors.length > 0) {
+    res.status(400).send(errors);
+    return;
+  }
+
+  const current = db.collection("messages").doc(body.messageId);
+  const doc = await current.get();
+
+  if (!doc.exists) {
+    res.status(404).send("Error: Message not found");
+    return;
+  }
+  const message = doc.data();
+  let upVotes = 0;
+  if (message && message.upVotes) {
+    upVotes = message.upVotes;
+  }
+
+  current.update({ upVotes: upVotes + 1 });
+  res.send((await current.get()).data());
+});
+
+export const downvoteMessage = functions.https.onRequest(async (req, res) => {
+  const body = req.body;
+  const errors = requiredParams(["messageId"], body);
+  if (errors.length > 0) {
+    res.status(400).send(errors);
+    return;
+  }
+
+  const current = db.collection("messages").doc(body.messageId);
+  const doc = await current.get();
+
+  if (!doc.exists) {
+    res.status(404).send("Error: Message not found");
+    return;
+  }
+  const message = doc.data();
+  let downVotes = 0;
+  if (message && message.downVotes) {
+    downVotes = message.downVotes;
+  }
+
+  current.update({ downVotes: downVotes + 1 });
+  res.send((await current.get()).data());
 });
