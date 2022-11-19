@@ -1,6 +1,6 @@
 import * as functions from "firebase-functions";
 import * as admin from "firebase-admin";
-import * as geofire from 'geofire-common';
+import * as geofire from "geofire-common";
 
 admin.initializeApp();
 const db = admin.firestore();
@@ -12,28 +12,59 @@ export const helloWorld = functions.https.onRequest((request, response) => {
   response.send("Hello from Firebase!");
 });
 
-export const createDrop = functions.https.onRequest(async (request, response) => {
-  const body = request.body;
-  if (!body["lon"] || !body["lat"]) {
-    response.send("bruh, send me long and lat");
+export const messages = functions.https.onRequest(async (req, res) => {
+  const body = req.body;
+  if (!body["lat"] || !body["lon"] || !body["radius"]) {
+    res.status(400).send("send lat and lon");
     return;
   }
 
-  const hash = geofire.geohashForLocation([body["lon"], body["lat"]]);
-  const current = db.collection("deadDrops").doc(hash);
-  const doc = await current.get();
+  const radius = parseInt(body["radius"]);
+  const bounds = geofire.geohashQueryBounds([body["lon"], body["lat"]], radius);
+  console.log(bounds);
 
-  if (!doc.exists) {
-    current.set({
-      lat: body["lat"],
-      lon: body["lon"],
-      messages: ["Hello World"],
-    });
-  } else {
-    current.update({
-      messages: [...doc.data()!.messages, "Helloooo!"],
-    });
-  }
+  const promises = bounds.map((b) =>
+    db.collection("deadDrops").orderBy('hash')
+    .startAt(b[0])
+    .endAt(b[1]).get()
+  );
 
-  response.send('idk man');
+  Promise.all(promises).then(snapshots => {
+    for (const snap of snapshots) {
+      for (const doc of snap.docs) {
+        console.log(doc.data());
+      }
+    }
+  });
+
+  res.status(200).send("Hello world!");
 });
+
+export const createDrop = functions.https.onRequest(
+  async (request, response) => {
+    const body = request.body;
+    if (!body["lon"] || !body["lat"]) {
+      response.send("bruh, send me long and lat");
+      return;
+    }
+
+    const hash = geofire.geohashForLocation([body["lon"], body["lat"]]);
+    const current = db.collection("deadDrops").doc(hash);
+    const doc = await current.get();
+
+    if (!doc.exists) {
+      current.set({
+        hash,
+        lat: body["lat"],
+        lon: body["lon"],
+        messages: ["Hello World"],
+      });
+    } else {
+      current.update({
+        messages: [...doc.data()!.messages, "Helloooo!"],
+      });
+    }
+
+    response.send("idk man");
+  }
+);
