@@ -18,6 +18,8 @@
     "clsx": "^1.1.1",
     "react": "^18.0.0",
     "react-dom": "^18.0.0",
+    "react-router": "^6.4.3",
+    "react-router-dom": "^6.4.3",
     "tailwindcss-animatecss": "^1.0.7"
   },
   "devDependencies": {
