@@ -5,6 +5,7 @@ import {
   MapContainer, TileLayer, Marker, Popup, useMap, LayerGroup, Circle,LayersControl
 } from 'react-leaflet';
 import './styles.css';
+// @ts-ignore
 import { useMapEvents } from 'react-leaflet/hooks';
 import L from 'leaflet';
 
