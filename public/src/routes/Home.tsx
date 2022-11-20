@@ -1,9 +1,10 @@
+import ReactSlider from 'react-slider'
 import { createContext, useEffect, useState } from 'react';
 import { getMessages, MessageType } from '@/api/api';
 import Send from './Send';
 import Map from './map';
 
-export const RADIUS = 20;
+export const RADIUS = 2000;
 
 export const MessagesContext = createContext<MessageType[]>([]);
 
@@ -11,7 +12,7 @@ const Home = () => {
   const [messages, setMessages] = useState([]);
   const [location, setLocation] = useState({ lat: 0.1, lon: 0.1 });
   const [locationLoaded, setLocationLoaded] = useState(0);
-
+  const [radius, setRadius] = useState(10);
   useEffect(() => {
     navigator.geolocation.watchPosition((pos) => {
       setLocation({
@@ -47,7 +48,16 @@ const Home = () => {
         </div>
       </div>
       <div>
-        <Map />
+        <ReactSlider
+          className="horizontal-slider"
+          defaultValue={RADIUS}
+          max={2000}
+          thumbClassName="example-thumb"
+          trackClassName="example-track"
+          renderThumb={(props, state) => <div {...props}>{state.valueNow}</div>}
+          onAfterChange={(e) => {setRadius(e)}}
+        />
+        <Map radius={radius} messages={messages} />
       </div>
     </MessagesContext.Provider>
   );
