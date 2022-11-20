@@ -1,9 +1,9 @@
-import ReactSlider from "react-slider";
-import { createContext, useEffect, useState } from "react";
-import { getMessages, MessageType } from "@/api/api";
-import Send from "./Send";
-import Map from "./map";
-import { debounce } from "lodash";
+import ReactSlider from 'react-slider';
+import { createContext, useEffect, useState } from 'react';
+import { debounce } from 'lodash';
+import { getMessages, MessageType } from '@/api/api';
+import Send from './Send';
+import Map from './map';
 
 export const RADIUS = 2000;
 
@@ -20,16 +20,16 @@ const Home = () => {
         lat: pos.coords.latitude,
         lon: pos.coords.longitude,
       });
-      console.log("Updating Location");
+      console.log('Updating Location');
       setLocationLoaded(locationLoaded + 1);
     });
   }, []);
 
   useEffect(() => {
     if (locationLoaded > 0) {
-        getMessages(location.lat, location.lon, radius).then((r) => {
-          setMessages(r.data);
-        });
+      getMessages(location.lat, location.lon, radius).then((r) => {
+        setMessages(r.data);
+      });
     }
   }, [locationLoaded, radius]);
 
@@ -48,11 +48,25 @@ const Home = () => {
           <div className="w-3/4 md:w-full grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 px-8">
             {messages.map((m) => (
               <>
-                {m.messages.map((message) => (
-                  <div className="bg-white shadow-lg rounded-lg p-6 text-2xl break-all">
-                    {message.payload}
-                  </div>
-                ))}
+                {m.messages.map((message) => {
+                  // check if the message is a deso address
+                  let desoAddress = '';
+                  if (message.payload.includes('|')) {
+                    desoAddress = message.payload.split('|')[1];
+                  }
+                  return (
+                    <div className="bg-white shadow-lg rounded-lg p-6 text-2xl break-all">
+                      {message.payload}
+                      {(desoAddress !== '') && (
+                      <a href={`https://explorer.deso.org/address/${desoAddress}`} target="_blank" rel="noreferrer">
+                        <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+                          View or donate to this address!
+                        </button>
+                      </a>
+                      )}
+                    </div>
+                  );
+                })}
               </>
             ))}
           </div>

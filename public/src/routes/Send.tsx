@@ -15,7 +15,7 @@ const Send: FC<{
 
   const submitMessage = () => {
     if (desoAddress.length > 0) {
-      postMessage(`${message}\nDeso Address: ${desoAddress}`, lon, lat);
+      postMessage(`${message}\nDeso Address: |${desoAddress}|`, lon, lat);
     } else {
       postMessage(message, lon, lat);
     }
