@@ -8,7 +8,6 @@ import './styles.css';
 import { useMapEvents } from 'react-leaflet/hooks';
 import L from 'leaflet';
 
-let radiusCircle;
 
 const SetLocation = ({ radius,position,setPosition }) => {
   
@@ -33,7 +32,7 @@ const SetLocation = ({ radius,position,setPosition }) => {
   }, [map,radius]);
 
   return position === null ? null : (
-    <Marker position={position}>
+    <Marker position={position} riseOnHover zIndexOffset={1000}>
       <Popup>You are here</Popup>
     </Marker>
   );
@@ -47,7 +46,7 @@ const Map = ({radius,messages}) => {
   <div className="h-screen w-full">
     <MapContainer
       center={{ lat: 51.505, lng: -0.09 }}
-      zoom={13}
+      zoom={20}
       scrollWheelZoom={false}
       style={{ width: '100vw', height: '100vh' }}
     >
@@ -59,13 +58,12 @@ const Map = ({radius,messages}) => {
       <SetLocation radius={radius} position={position} setPosition={setPosition}/>
       <Circle
         center={position}
-        pathOptions={{ fillColor: 'green' }}
+        pathOptions={{ fillColor: 'red' , color:'red'}}
         radius={radius}
       />
       {messages.map(m=>(
-        <Marker position={{lat:m.lat,lng:m.lon}}>
-        <Popup>{m.messages[0].payload}</Popup>
-        {console.log(m)}
+        <Marker position={{lat:m.lat,lng:m.lon}} riseOnHover={true} opacity={0.2 * m.messages.length}>
+          {m.messages.map(msg=>(<Popup>{msg.payload}</Popup>))}
       </Marker>
       ))}
     </MapContainer>
