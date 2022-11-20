@@ -1,21 +1,29 @@
-import { FC, useEffect, useState } from "react";
-import { getMessages, postMessage } from "@/api/api";
-import { RADIUS } from "./Home";
+import { FC, useEffect, useState } from 'react';
+import { getMessages, postMessage } from '@/api/api';
+import { RADIUS } from './Home';
 
 const Send: FC<{
   lat: number;
   lon: number;
   messages: string[];
   setMessages: (a: any[]) => void;
-}> = ({ lat, lon, messages, setMessages }) => {
-  const [message, setMessage] = useState("");
+}> = ({
+  lat, lon, messages, setMessages,
+}) => {
+  const [message, setMessage] = useState('');
+  const [desoAddress, setDesoAddress] = useState('');
 
   const submitMessage = () => {
-    postMessage(message, lon, lat);
-    setMessage("");
+    if (desoAddress.length > 0) {
+      postMessage(`${message}\nDeso Address: ${desoAddress}`, lon, lat);
+    } else {
+      postMessage(message, lon, lat);
+    }
+
+    setMessage('');
     setMessages([
       ...messages,
-      { lon: lon, lat: lat, messages: [{ payload: message }] },
+      { lon, lat, messages: [{ payload: message }] },
     ]);
   };
 
@@ -39,8 +47,8 @@ const Send: FC<{
           className="w-full px-0 text-sm text-gray-900 bg-white border-0 dark:bg-gray-800 focus:ring-0 dark:text-white dark:placeholder-gray-400"
           placeholder="Put in your deso coin address here"
           required
-          value={message}
-          onChange={(e) => setMessage(e.target.value)}
+          value={desoAddress}
+          onChange={(e) => setDesoAddress(e.target.value)}
         />
       </div>
       <div className="flex items-center justify-between px-3 py-2 border-t dark:border-gray-600">
