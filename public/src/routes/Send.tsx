@@ -14,6 +14,7 @@ const Send: FC<{
 
   const submitMessage = () => {
     postMessage(message, lon, lat);
+    setMessage("");
     setMessages([...messages, { messages: [{ payload: message }] }]);
   };
 

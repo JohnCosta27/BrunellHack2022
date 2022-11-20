@@ -44,12 +44,12 @@ const Map = ({radius,messages}) => {
   
   return (
 
-  <div className="h-screen w-full">
+  <div className="w-full flex justify-center items-center">
     <MapContainer
       center={{ lat: 51.505, lng: -0.09 }}
       zoom={13}
       scrollWheelZoom={false}
-      style={{ width: '100vw', height: '100vh' }}
+      style={{ width: '90vw', height: '90vh', overflowX: 'hidden' }}
     >
       <TileLayer
         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'

@@ -26,6 +26,7 @@ const Home = () => {
 
   useEffect(() => {
     if (locationLoaded > 0) {
+      console.log("Refetching!");
       getMessages(location.lat, location.lon, RADIUS).then((r) => {
         setMessages(r.data);
       });
@@ -34,13 +35,15 @@ const Home = () => {
 
   return (
     <MessagesContext.Provider value={messages}>
-      <div className="flex justify-center w-full flex-col">
-        <div className="flex flex-col gap-8 justify-center items-center w-full">
-          <h1 className="text-5xl text-white text-center">Near Me</h1>
-          <div className="w-3/4 md:w-full grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div className="flex justify-center w-full flex-col bg-[#FAFAFA]">
+        <Map radius={radius} messages={messages} />
+        <div className="flex flex-col gap-8 justify-center items-center w-full mt-4">
+          <h1 className="text-5xl text-center">Near Me (20 meters)</h1>
+          <button className="text-5xl bg-white p-4 rounded shadow-lg" onClick={() => setLocationLoaded(locationLoaded + 1)}>Refetch!</button>
+          <div className="w-3/4 md:w-full grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 px-8">
             {messages.map((m) => (
               <>
-                {m.messages.map((message) => <div className="bg-white p-4 text-2xl">{message.payload}</div>)}
+                {m.messages.map((message) => <div className="bg-white shadow-lg rounded-lg p-6 text-2xl break-all">{message.payload}</div>)}
               </>
             ))}
           </div>
@@ -57,7 +60,6 @@ const Home = () => {
           renderThumb={(props, state) => <div {...props}>{state.valueNow}</div>}
           onAfterChange={(e) => {setRadius(e)}}
         />
-        <Map radius={radius} messages={messages} />
       </div>
     </MessagesContext.Provider>
   );
