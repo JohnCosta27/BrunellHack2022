@@ -1,12 +1,15 @@
 import { LatLngExpression } from 'leaflet';
-import React, { useEffect, useReducer, useState } from 'react';
+import React, { useEffect, useReducer, useState, useContext } from 'react';
 import {
   MapContainer, TileLayer, Marker, Popup, useMap,
 } from 'react-leaflet';
 import './styles.css';
 import { useMapEvent, useMapEvents } from 'react-leaflet/hooks';
 
+import { MessagesContext } from '@/routes/Home';
+
 const SetLocation = () => {
+	const messagesContext = useContext(MessagesContext);
   const [position, setPosition] = useState(null);
   const map = useMapEvents({
     click() {
