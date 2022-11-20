@@ -1,21 +1,22 @@
-import { FC, useEffect, useState } from 'react';
-import { getMessages, postMessage } from '@/api/api';
-import { RADIUS } from './Home';
+import { FC, useEffect, useState } from "react";
+import { getMessages, postMessage } from "@/api/api";
+import { RADIUS } from "./Home";
 
 const Send: FC<{
   lat: number;
   lon: number;
   messages: string[];
   setMessages: (a: any[]) => void;
-}> = ({
-  lat, lon, messages, setMessages,
-}) => {
-  const [message, setMessage] = useState('');
+}> = ({ lat, lon, messages, setMessages }) => {
+  const [message, setMessage] = useState("");
 
   const submitMessage = () => {
     postMessage(message, lon, lat);
     setMessage("");
-    setMessages([...messages, { messages: [{ payload: message }] }]);
+    setMessages([
+      ...messages,
+      { lon: lon, lat: lat, messages: [{ payload: message }] },
+    ]);
   };
 
   return (

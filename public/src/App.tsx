@@ -18,7 +18,6 @@ const App = () => (
       <Route index element={<Home />} />
       <Route path="view" element={<View />} />
       <Route path="loc" element={<Location />} />
-      <Route path="map" element={<Map radius={10} />} />
     </Route>
   </Routes>
 
