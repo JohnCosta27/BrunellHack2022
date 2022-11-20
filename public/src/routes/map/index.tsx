@@ -64,9 +64,10 @@ const Map = ({radius,messages}) => {
       />
       {messages.map(m=>(
         <Marker position={{lat:m.lat,lng:m.lon}} riseOnHover={true} opacity={0.2 * m.messages.length}>
-          {m.messages.map(msg=>(<Popup>{msg.payload}</Popup>))}
+          <Popup>{m.messages.map(msg=>(<div>{ msg.payload}</div>))}</Popup>
       </Marker>
       ))}
+    
     </MapContainer>
   </div>
 )};
