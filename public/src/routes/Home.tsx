@@ -54,7 +54,7 @@ const Home = () => {
                   if (message.payload.includes('|')) {
                     desoAddress = message.payload.split('|')[1];
                     // remove deso stuff from payload
-                    message.payload = message.payload.split('\nDeso Address: |')[0];
+                    //message.payload = message.payload.split('\nDeso Address: |')[0];
                   }
                   return (
                     <div className="bg-white shadow-lg rounded-lg p-6 text-2xl break-all">
